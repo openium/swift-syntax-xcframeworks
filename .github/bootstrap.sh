@@ -2,7 +2,7 @@
 
 SWIFT_SYNTAX_VERSION=$1
 SWIFT_SYNTAX_NAME="swift-syntax"
-SWIFT_SYNTAX_REPOSITORY_URL="https://github.com/apple/$SWIFT_SYNTAX_NAME.git"
+SWIFT_SYNTAX_REPOSITORY_URL="https://github.com/swiftlang/$SWIFT_SYNTAX_NAME.git"
 SEMVER_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+$"
 WRAPPER_NAME="SwiftSyntaxWrapper"
 ARCH="arm64"
@@ -47,16 +47,16 @@ git clone --branch $SWIFT_SYNTAX_VERSION --single-branch $SWIFT_SYNTAX_REPOSITOR
 # Add static wrapper product
 #
 
-sed -i '' -E "s/(products: \[)$/\1\n    .library(name: \"${WRAPPER_NAME}\", type: .static, targets: [\"${WRAPPER_NAME}\"]),/g" "$SWIFT_SYNTAX_NAME/Package.swift"
+sed -i '' -E "s/(products = \[)$/\1\n    .library(name: \"${WRAPPER_NAME}\", type: .static, targets: [\"${WRAPPER_NAME}\"]),/g" "$SWIFT_SYNTAX_NAME/Package.swift"
 
 #
 # Add target for wrapper product
 #
 
-sed -i '' -E "s/(targets: \[)$/\1\n    .target(name: \"${WRAPPER_NAME}\", dependencies: [\"SwiftCompilerPlugin\", \"SwiftSyntax\", \"SwiftSyntaxBuilder\", \"SwiftSyntaxMacros\", \"SwiftSyntaxMacrosTestSupport\"]),/g" "$SWIFT_SYNTAX_NAME/Package.swift"
+sed -i '' -E "s/(\/\/ MARK: SwiftSyntaxMacros)$/\1\n    .target(name: \"${WRAPPER_NAME}\", dependencies: [\"SwiftCompilerPlugin\", \"SwiftSyntax\", \"SwiftSyntaxBuilder\", \"SwiftSyntaxMacros\", \"SwiftSyntaxMacrosTestSupport\"]),/" "$SWIFT_SYNTAX_NAME/Package.swift"
 
 # for swift 600.x.y
-sed -i '' 's/, .version("6")//g' "$SWIFT_SYNTAX_NAME/Package.swift"
+#sed -i '' 's/, .version("6")//g' "$SWIFT_SYNTAX_NAME/Package.swift"
 
 #
 # Add exported imports to wrapper target
@@ -125,7 +125,7 @@ for ((i = 0; i < ${#PLATFORMS[@]}; i += 2)); do
 
     for MODULE in ${MODULES[@]}; do
         MODULE_PATH="$DERIVED_DATA_PATH/Build/Products/$CONFIGURATION*/${MODULE}.swiftmodule/*.swiftinterface"
-        mkdir "$OUTPUTS_PATH/${MODULE}.swiftmodule"
+        mkdir -p "$OUTPUTS_PATH/${MODULE}.swiftmodule"
         cp -a $MODULE_PATH "$OUTPUTS_PATH/${MODULE}.swiftmodule"
     done
 
